@@ -1,0 +1,19 @@
+# Maven output folder (we rebuild inside the container)
+target/
+
+# Git-related files
+.git
+.gitignore
+
+# IDE settings
+*.iml
+.idea/
+.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Docker and Render config (optional)
+Dockerfile
+render.yaml

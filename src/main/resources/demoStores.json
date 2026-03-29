@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "City Medical",
+    "distance": 0.8,
+    "open": true,
+    "medicines": ["Paracetamol", "Crocin", "Azithromycin"]
+  },
+  {
+    "id": 2,
+    "name": "HealthPlus Pharmacy",
+    "distance": 1.5,
+    "open": false,
+    "medicines": ["Dolo", "Ibuprofen"]
+  },
+  {
+    "id": 3,
+    "name": "Care Medical",
+    "distance": 2.2,
+    "open": true,
+    "medicines": ["Paracetamol", "Vitamin C"]
+  }
+]
