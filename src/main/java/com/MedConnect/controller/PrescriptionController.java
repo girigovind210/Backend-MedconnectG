@@ -84,7 +84,7 @@ public class PrescriptionController {
             createPdfForPatient(patient, pdfPath);
 
             // 🔽 Public URL pointing to your new custom endpoint
-            String pdfUrl = "https://medconnect-backend-283p.onrender.com/api/v1/prescriptions/files/" + pdfFileName;
+            String pdfUrl = "https://medconnect-backend-sms3.onrender.com/api/v1/prescriptions/files/" + pdfFileName;
 
             // 🔽 WhatsApp message caption
             String caption = "Hello " + patient.getName() + ", please find your prescription attached.";
