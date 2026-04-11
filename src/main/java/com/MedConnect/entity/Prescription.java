@@ -39,17 +39,21 @@ public class Prescription {
 
     // ✅ Send as List to frontend (IMPORTANT FIX)
     @JsonProperty("timeToTake")
-    public List<String> getTimeToTake() {
-        if (this.timeToTake == null) return new ArrayList<>();
-
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(this.timeToTake, new TypeReference<List<String>>() {});
-        } catch (Exception e) {
-            e.printStackTrace();
+public List<String> getTimeToTake() {
+    try {
+        if (this.timeToTake == null || this.timeToTake.isEmpty()) {
             return new ArrayList<>();
         }
+
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(this.timeToTake, new TypeReference<List<String>>() {});
+    } catch (Exception e) {
+        // 🔥 fallback: treat as single string
+        List<String> list = new ArrayList<>();
+        list.add(this.timeToTake);
+        return list;
     }
+}
 
     // ✅ Setter (used while saving)
     public void setTimeToTake(String timeToTake) {
