@@ -24,7 +24,7 @@ public class Prescription {
     @JsonIgnore
     private Patient patient;
 
-    // ✅ Medicine mapping (safe)
+    // ✅ Medicine mapping
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "medicine_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -32,14 +32,14 @@ public class Prescription {
 
     private String dosage;
 
-    // 🔥 Store raw JSON string in DB
+    // 🔥 Store JSON string in DB
     @JsonIgnore
     @Column(name = "time_to_take", columnDefinition = "JSON")
     private String timeToTake;
 
-    // ✅ Send as array to frontend
+    // ✅ Send as List to frontend (IMPORTANT FIX)
     @JsonProperty("timeToTake")
-    public List<String> getTimeToTakeList() {
+    public List<String> getTimeToTake() {
         if (this.timeToTake == null) return new ArrayList<>();
 
         try {
@@ -51,14 +51,12 @@ public class Prescription {
         }
     }
 
-    // ✅ Keep setter (IMPORTANT)
+    // ✅ Setter (used while saving)
     public void setTimeToTake(String timeToTake) {
         this.timeToTake = timeToTake;
     }
 
-    // ❌ DO NOT expose raw string getter (prevents 500 error)
-
-    // Constructors
+    // 🔧 Constructors
     public Prescription() {}
 
     public Prescription(Patient patient, Medicine medicine, String dosage, String timeToTake) {
@@ -68,7 +66,7 @@ public class Prescription {
         this.timeToTake = timeToTake;
     }
 
-    // Getters & Setters
+    // 🔧 Getters & Setters
 
     public Long getId() {
         return id;
