@@ -3,7 +3,8 @@ package com.MedConnect.entity;
 import jakarta.persistence.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 import java.util.List;
 
@@ -37,10 +38,9 @@ public class Patient {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+       @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Prescription> prescription;
-
 
     
     public Patient() {}
@@ -143,4 +143,5 @@ public class Patient {
     public void setPrescription(List<Prescription> prescription) {
         this.prescription = prescription;
     }
+    
 }
