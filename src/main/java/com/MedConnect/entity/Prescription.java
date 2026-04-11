@@ -2,12 +2,12 @@ package com.MedConnect.entity;
 
 import jakarta.persistence.*;
 import com.MedConnect.doclogin.entity.Medicine;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,24 +18,26 @@ public class Prescription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 🔥 Avoid circular JSON
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "patient_id")
     @JsonIgnore
     private Patient patient;
 
-
-        @ManyToOne(fetch = FetchType.EAGER)
+    // ✅ Medicine mapping (safe)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "medicine_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Medicine medicine;
 
     private String dosage;
 
-    @JsonIgnore // hide raw JSON string from frontend
+    // 🔥 Store raw JSON string in DB
+    @JsonIgnore
     @Column(name = "time_to_take", columnDefinition = "JSON")
     private String timeToTake;
 
-    // Send this as an array to the frontend
+    // ✅ Send as array to frontend
     @JsonProperty("timeToTake")
     public List<String> getTimeToTakeList() {
         if (this.timeToTake == null) return new ArrayList<>();
@@ -49,14 +51,12 @@ public class Prescription {
         }
     }
 
-    public String getTimeToTake() {
-        return timeToTake;
-    }
-
-    // Keep this for saving JSON string
+    // ✅ Keep setter (IMPORTANT)
     public void setTimeToTake(String timeToTake) {
         this.timeToTake = timeToTake;
     }
+
+    // ❌ DO NOT expose raw string getter (prevents 500 error)
 
     // Constructors
     public Prescription() {}
@@ -68,7 +68,8 @@ public class Prescription {
         this.timeToTake = timeToTake;
     }
 
-    // Other getters and setters
+    // Getters & Setters
+
     public Long getId() {
         return id;
     }
