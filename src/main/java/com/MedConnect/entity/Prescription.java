@@ -38,22 +38,22 @@ public class Prescription {
     private String timeToTake;
 
     // ✅ Send as List to frontend (IMPORTANT FIX)
-        @JsonProperty("timeToTake")
-        public List<String> getTimeToTake() {
-            try {
-                if (this.timeToTake == null || this.timeToTake.isEmpty()) {
-                    return new ArrayList<>();
-                }
-
-                ObjectMapper mapper = new ObjectMapper();
-                return mapper.readValue(this.timeToTake, new TypeReference<List<String>>() {});
-            } catch (Exception e) {
-                // 🔥 HANDLE BAD DATA (IMPORTANT)
-                List<String> list = new ArrayList<>();
-                list.add(this.timeToTake);
-                return list;
-            }
+      @JsonProperty("timeToTake")
+public List<String> getTimeToTake() {
+    try {
+        if (this.timeToTake == null || this.timeToTake.isEmpty()) {
+            return new ArrayList<>();
         }
+
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(this.timeToTake, new TypeReference<List<String>>() {});
+    } catch (Exception e) {
+        // fallback (NO CRASH)
+        List<String> list = new ArrayList<>();
+        list.add(this.timeToTake);
+        return list;
+    }
+}
 
     // ✅ Setter (used while saving)
     public void setTimeToTake(String timeToTake) {

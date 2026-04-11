@@ -42,18 +42,31 @@ public class PrescriptionController {
     }
 
     // ✅ GET prescriptions (FIXED - no 500 error)
-    @GetMapping("/{patientId}")
-    public ResponseEntity<?> getPrescriptionsForPatient(@PathVariable Long patientId) {
-        try {
-            List<Prescription> list = prescriptionRepository.findByPatientId(patientId);
-            return ResponseEntity.ok(list != null ? list : List.of());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error fetching prescriptions");
-        }
-    }
+  @GetMapping("/{patientId}")
+public ResponseEntity<?> getPrescriptionsForPatient(@PathVariable Long patientId) {
+    try {
+        List<Prescription> list = prescriptionRepository.findByPatientId(patientId);
 
+        // 🔥 SAFE HANDLING (IMPORTANT)
+        list.forEach(p -> {
+            try {
+                // force fetch medicine safely
+                if (p.getMedicine() != null) {
+                    p.getMedicine().getDrugName();
+                }
+            } catch (Exception e) {
+                p.setMedicine(null); // avoid crash
+            }
+        });
+
+        return ResponseEntity.ok(list != null ? list : List.of());
+
+    } catch (Exception e) {
+        e.printStackTrace(); // 🔥 MUST KEEP
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error: " + e.getMessage()); // 🔥 SHOW REAL ERROR
+    }
+}
     // ✅ Send prescription PDF
     @PutMapping("/patients/{id}/send-prescription")
     public ResponseEntity<String> sendPrescription(@PathVariable Long id) {
