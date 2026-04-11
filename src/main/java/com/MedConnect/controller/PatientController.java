@@ -164,7 +164,7 @@ public ResponseEntity<Patient> createPatient(@RequestBody Patient patient) {
                 if (existingPrescription != null) {
                     // Merge with existing time values
                     List<String> existingTimes = objectMapper.readValue(
-                            existingPrescription.getTimeToTake(), new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {});
+                            existingPrescription.getTimeToTakeRaw(), new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {});
                     newTimes.addAll(existingTimes);
                     existingPrescription.setTimeToTake(objectMapper.writeValueAsString(newTimes));
                 } else {

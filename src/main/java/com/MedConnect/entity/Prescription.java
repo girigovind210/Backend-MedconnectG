@@ -95,4 +95,9 @@ public class Prescription {
     public void setDosage(String dosage) {
         this.dosage = dosage;
     }
+
+    public String getTimeToTakeRaw() 
+    {
+    return timeToTake;
+}
 }

@@ -145,8 +145,8 @@ public class PrescriptionController {
                         : "N/A";
 
                 // ✅ FIXED HERE
-                String timeToTake = (p.getTimeToTakeList() != null && !p.getTimeToTakeList().isEmpty())
-                        ? String.join(", ", p.getTimeToTakeList())
+                String timeToTake = (p.getTimeToTake() != null && !p.getTimeToTake().isEmpty())
+                        ? String.join(", ", p.getTimeToTake())
                         : "N/A";
 
                 String dosage = (p.getDosage() != null) ? p.getDosage() : "N/A";
