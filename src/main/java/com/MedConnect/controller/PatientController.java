@@ -110,16 +110,24 @@ public class PatientController {
 
 
 
-   @PostMapping(consumes = "application/json", produces = "application/json")
-public ResponseEntity<Patient> createPatient(@RequestBody Patient patient) {
-    try {
-        Patient savedPatient = patientRepository.save(patient);
-        return new ResponseEntity<>(savedPatient, HttpStatus.CREATED);
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-}
+        @PostMapping
+        public ResponseEntity<?> createPatient(@RequestBody String patientJson) {
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+
+                // Convert JSON string → Patient object
+                Patient patient = objectMapper.readValue(patientJson, Patient.class);
+
+                Patient savedPatient = patientRepository.save(patient);
+
+                return new ResponseEntity<>(savedPatient, HttpStatus.CREATED);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error parsing request");
+            }
+        }
 
     @PutMapping("/{id}/add-medicine")
     public ResponseEntity<?> assignMedicineToPatient(
