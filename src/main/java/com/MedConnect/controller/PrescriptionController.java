@@ -8,15 +8,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 
 import com.MedConnect.entity.Patient;
 import com.MedConnect.entity.Prescription;
@@ -24,22 +16,12 @@ import com.MedConnect.repository.PrescriptionRepository;
 import com.MedConnect.service.PatientService;
 import com.MedConnect.service.TwilioService;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.colors.Color;
-import com.itextpdf.kernel.colors.ColorConstants;
-import com.itextpdf.kernel.colors.DeviceRgb;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Image;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.properties.HorizontalAlignment;
-import com.itextpdf.layout.properties.TextAlignment;
-import com.itextpdf.layout.properties.UnitValue;
+import com.itextpdf.layout.element.*;
+import com.itextpdf.layout.properties.*;
 
 @CrossOrigin(origins = "https://medconnect-frontend-1.onrender.com")
-@org.springframework.context.annotation.Profile("!demo")
 @RestController
 @RequestMapping("/api/v1/prescriptions")
 public class PrescriptionController {
@@ -51,21 +33,28 @@ public class PrescriptionController {
     private TwilioService twilioService;
 
     @Autowired
-    private PatientService patientService; // Autowire PatientService
+    private PatientService patientService;
 
-    // Add prescription for a patient
+    // ✅ Add prescription
     @PostMapping
     public Prescription addPrescription(@RequestBody Prescription prescription) {
         return prescriptionRepository.save(prescription);
     }
 
-    // Get prescriptions for a specific patient
+    // ✅ GET prescriptions (FIXED - no 500 error)
     @GetMapping("/{patientId}")
-    public List<Prescription> getPrescriptionsForPatient(@PathVariable Long patientId) {
-    	return prescriptionRepository.findByPatientId(patientId);
+    public ResponseEntity<?> getPrescriptionsForPatient(@PathVariable Long patientId) {
+        try {
+            List<Prescription> list = prescriptionRepository.findByPatientId(patientId);
+            return ResponseEntity.ok(list != null ? list : List.of());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching prescriptions");
+        }
     }
 
-    // Send prescription to a patient's WhatsApp
+    // ✅ Send prescription PDF
     @PutMapping("/patients/{id}/send-prescription")
     public ResponseEntity<String> sendPrescription(@PathVariable Long id) {
         try {
@@ -75,33 +64,29 @@ public class PrescriptionController {
                 return ResponseEntity.badRequest().body("Patient or phone number not found.");
             }
 
-            // 🔽 Define the external directory where PDF will be stored
-            String basePath = "/tmp/uploads/prescriptions/";  // Use /tmp directory on Render
+            String basePath = "/tmp/uploads/prescriptions/";
             String pdfFileName = id + ".pdf";
             String pdfPath = basePath + pdfFileName;
 
-            // 🔽 Generate the PDF and save it
             createPdfForPatient(patient, pdfPath);
 
-            // 🔽 Public URL pointing to your new custom endpoint
             String pdfUrl = "https://medconnect-backend-sms3.onrender.com/api/v1/prescriptions/files/" + pdfFileName;
 
-            // 🔽 WhatsApp message caption
             String caption = "Hello " + patient.getName() + ", please find your prescription attached.";
 
-            // 🔽 Send the PDF via WhatsApp
             twilioService.sendWhatsAppMessageWithMedia(patient.getPhoneNumber(), pdfUrl, caption);
 
-            return ResponseEntity.ok("Prescription PDF sent successfully via WhatsApp!");
+            return ResponseEntity.ok("Prescription sent successfully!");
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending prescription!");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error sending prescription!");
         }
     }
 
-    
- // ⬇️ Put the PDF creation method right here
+    // ✅ PDF creation (FIXED TIME BUG)
     private void createPdfForPatient(Patient patient, String filePath) throws IOException {
+
         File directory = new File(filePath).getParentFile();
         if (!directory.exists()) {
             directory.mkdirs();
@@ -112,96 +97,81 @@ public class PrescriptionController {
         Document document = new Document(pdf);
 
         // Logo
-        Image logo = new Image(ImageDataFactory.create("https://medconnect-frontend-1.onrender.com/assets/medconnect2-logo.png"));
-        logo.setWidth(90).setHeight(90);
-        logo.setHorizontalAlignment(HorizontalAlignment.CENTER); // Center align the logo
+        Image logo = new Image(ImageDataFactory.create(
+                "https://medconnect-frontend-1.onrender.com/assets/medconnect2-logo.png"));
+        logo.setWidth(90);
+        logo.setHeight(90);
+        logo.setHorizontalAlignment(HorizontalAlignment.CENTER);
         document.add(logo);
 
-        // Date & Time
+        // Date
         String dateTime = java.time.LocalDateTime.now().toString().replace("T", ", ");
         document.add(new Paragraph("Date & Time: " + dateTime).setBold());
 
         // Title
-        document.add(new Paragraph("Patient Prescription Details").setBold().setFontSize(14).setMarginTop(10));
+        document.add(new Paragraph("Patient Prescription Details").setBold().setFontSize(14));
 
-        // Table for patient data
-        float[] columnWidths = {1, 2}; // ID & Data column; feel free to adjust ratio
-        Table table = new Table(columnWidths);
-        table.setWidth(UnitValue.createPercentValue(100)); // Full page width
+        // Patient table
+        Table table = new Table(new float[]{1, 2});
+        table.setWidth(UnitValue.createPercentValue(100));
 
-        // Helper method to add rows
-        table.addCell(new Cell().add(new Paragraph("ID").setBold()));
-        table.addCell(new Cell().add(new Paragraph(String.valueOf(patient.getId()))));
+        table.addCell("ID"); table.addCell(String.valueOf(patient.getId()));
+        table.addCell("Name"); table.addCell(patient.getName());
+        table.addCell("Age"); table.addCell(String.valueOf(patient.getAge()));
+        table.addCell("Blood Group"); table.addCell(patient.getBlood());
+        table.addCell("Dose"); table.addCell(patient.getDose());
+        table.addCell("Fees"); table.addCell(String.valueOf(patient.getFees()));
 
-        table.addCell(new Cell().add(new Paragraph("Name").setBold()));
-        table.addCell(new Cell().add(new Paragraph(patient.getName())));
+        document.add(table);
 
-        table.addCell(new Cell().add(new Paragraph("Age").setBold()));
-        table.addCell(new Cell().add(new Paragraph(String.valueOf(patient.getAge()))));
-
-        table.addCell(new Cell().add(new Paragraph("Blood Group").setBold()));
-        table.addCell(new Cell().add(new Paragraph(patient.getBlood())));
-
-        table.addCell(new Cell().add(new Paragraph("Dose").setBold()));
-        table.addCell(new Cell().add(new Paragraph(patient.getDose()))); // Make sure 'dose' is in Patient entity
-
-        
-        table.addCell(new Cell().add(new Paragraph("Fees").setBold()));
-        table.addCell(new Cell().add(new Paragraph(String.valueOf(patient.getFees()))));
-
-        document.add(table.setMarginTop(10).setMarginBottom(20));
-
-       
-        // Retrieve the prescriptions for the patient
+        // Medicines
         List<Prescription> prescriptions = prescriptionRepository.findByPatientId(patient.getId());
 
         if (!prescriptions.isEmpty()) {
-            document.add(new Paragraph("Medicines:").setBold().setFontSize(12).setMarginTop(10));
 
-            // Create a Table with columns for prescription details
-            Table medTable = new Table(new float[]{4,2,4});  // Adjust column widths if needed
+            document.add(new Paragraph("Medicines:").setBold());
+
+            Table medTable = new Table(new float[]{4, 2, 4});
             medTable.setWidth(UnitValue.createPercentValue(100));
 
-            // Add table headers for the columns
-            medTable.addCell(new Cell().add(new Paragraph("Drug Name").setBold()));
-            medTable.addCell(new Cell().add(new Paragraph("Time To Take").setBold()));
-            medTable.addCell(new Cell().add(new Paragraph("Dosage").setBold()));
-            
-          
-            // Loop through each prescription and add the details to the table
+            medTable.addCell("Drug Name");
+            medTable.addCell("Time To Take");
+            medTable.addCell("Dosage");
+
             for (Prescription p : prescriptions) {
-                String drugName = (p.getMedicine() != null) ? p.getMedicine().getDrugName() : "N/A";
-                String timeToTake = (p.getTimeToTake() != null) ? String.join(", ", p.getTimeToTake()) : "N/A";
+
+                String drugName = (p.getMedicine() != null)
+                        ? p.getMedicine().getDrugName()
+                        : "N/A";
+
+                // ✅ FIXED HERE
+                String timeToTake = (p.getTimeToTakeList() != null && !p.getTimeToTakeList().isEmpty())
+                        ? String.join(", ", p.getTimeToTakeList())
+                        : "N/A";
+
                 String dosage = (p.getDosage() != null) ? p.getDosage() : "N/A";
 
-                medTable.addCell(new Cell().add(new Paragraph(drugName)));
-                medTable.addCell(new Cell().add(new Paragraph(timeToTake)));
-                medTable.addCell(new Cell().add(new Paragraph(dosage)));
+                medTable.addCell(drugName);
+                medTable.addCell(timeToTake);
+                medTable.addCell(dosage);
             }
 
-            // Add the table to the document
             document.add(medTable);
         }
-        
-     // Doctor details
-        document.add(new Paragraph("Dr. Kadam").setBold().setMarginTop(20));
-        document.add(new Paragraph("(BHMS) Bachelor of Homeopathic Medicine and Surgery"));
+
+        document.add(new Paragraph("Dr. Kadam").setBold());
+        document.add(new Paragraph("(BHMS)"));
         document.add(new Paragraph("Phone: +91 9699-590-048"));
-       
 
         document.close();
-        System.out.println("PDF created at: " + filePath);
     }
 
-
-
-
-    	@GetMapping("/files/{filename:.+}")
-    	public ResponseEntity<?> servePrescriptionPdf(@PathVariable String filename) {
+    // ✅ Serve PDF
+    @GetMapping("/files/{filename:.+}")
+    public ResponseEntity<?> servePrescriptionPdf(@PathVariable String filename) {
         try {
-            String filePath =  "/tmp/uploads/prescriptions/" + filename;
+            String filePath = "/tmp/uploads/prescriptions/" + filename;
             File file = new File(filePath);
-            System.out.println("Trying to serve file from: " + filePath);
 
             if (!file.exists()) {
                 return ResponseEntity.notFound().build();
@@ -213,15 +183,11 @@ public class PrescriptionController {
                     .header("Content-Disposition", "inline; filename=\"" + file.getName() + "\"")
                     .header("Content-Type", "application/pdf")
                     .body(fileContent);
+
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error reading file.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error reading file.");
         }
-        
     }
-
-
-
-   
-
 }

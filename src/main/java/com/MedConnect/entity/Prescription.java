@@ -18,15 +18,14 @@ public class Prescription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "patient_id")
-    @JsonBackReference
+    @JsonIgnore
     private Patient patient;
 
 
-
-    @ManyToOne
-    @JoinColumn(name = "medicine_id", referencedColumnName = "id")
+        @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "medicine_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Medicine medicine;
 
