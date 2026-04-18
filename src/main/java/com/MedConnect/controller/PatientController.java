@@ -191,7 +191,6 @@ public ResponseEntity<Patient> createPatient(@RequestBody Patient patient) {
 
 
     @DeleteMapping("/{id}")
-   @DeleteMapping("/{id}")
 public ResponseEntity<?> deletePatient(@PathVariable Long id) {
     try {
         if (!patientRepository.existsById(id)) {
