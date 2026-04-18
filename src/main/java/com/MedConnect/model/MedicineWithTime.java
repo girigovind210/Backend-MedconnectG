@@ -5,6 +5,8 @@ import java.util.List;
 public class MedicineWithTime {
     private String medicineName;
     private List<String> timeToTake;
+    private String symptoms;
+    private String diagnosis;
 
    public MedicineWithTime() {}
 
@@ -29,4 +31,19 @@ public class MedicineWithTime {
     public void setTimeToTake(List<String> timeToTake) {
         this.timeToTake = timeToTake;
     }
+    public String getSymptoms() {
+    return symptoms;
+}
+
+public void setSymptoms(String symptoms) {
+    this.symptoms = symptoms;
+}
+
+public String getDiagnosis() {
+    return diagnosis;
+}
+
+public void setDiagnosis(String diagnosis) {
+    this.diagnosis = diagnosis;
+}
 }

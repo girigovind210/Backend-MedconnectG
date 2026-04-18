@@ -211,4 +211,17 @@ public ResponseEntity<?> getPrescriptionsForPatient(@PathVariable Long patientId
 public List<Prescription> getPatientHistory(@PathVariable Long patientId) {
     return prescriptionRepository.findByPatientId(patientId);
 }
+@GetMapping("/last/{patientId}")
+public ResponseEntity<?> getLastPrescription(@PathVariable Long patientId) {
+
+    List<Prescription> list =
+        prescriptionRepository.findByPatientIdOrderByCreatedAtDesc(patientId);
+
+    if (list == null || list.isEmpty()) {
+        return ResponseEntity.ok(null);
+    }
+
+    // return latest (first)
+    return ResponseEntity.ok(list.get(0));
+}
 }

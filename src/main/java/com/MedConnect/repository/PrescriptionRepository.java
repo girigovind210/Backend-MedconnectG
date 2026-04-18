@@ -15,4 +15,5 @@ public interface PrescriptionRepository extends JpaRepository<Prescription, Long
     // ✅ NEW METHOD FOR HISTORY
     @Query("SELECT p FROM Prescription p WHERE p.patient.id = :patientId ORDER BY p.createdAt DESC")
     List<Prescription> findByPatientIdOrderByCreatedAtDesc(Long patientId);
+    
 }
