@@ -191,17 +191,26 @@ public ResponseEntity<Patient> createPatient(@RequestBody Patient patient) {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePatient(@PathVariable Long id) {
-        try {
-            if (!patientRepository.existsById(id)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Patient not found.");
-            }
-            patientRepository.deleteById(id);
-            return ResponseEntity.ok("Patient deleted successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting patient.");
+   @DeleteMapping("/{id}")
+public ResponseEntity<?> deletePatient(@PathVariable Long id) {
+    try {
+        if (!patientRepository.existsById(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(java.util.Map.of("message", "Patient not found"));
         }
+
+        patientRepository.deleteById(id);
+
+        return ResponseEntity.ok(
+                java.util.Map.of("message", "Patient deleted successfully")
+        );
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(java.util.Map.of("message", "Error deleting patient"));
     }
+}
     @GetMapping("/medicines")
     public List<Medicine> getAllMedicines() {
         return medicineService.getAllMedicines();
