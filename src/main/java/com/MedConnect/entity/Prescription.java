@@ -32,6 +32,15 @@ public class Prescription {
     private Medicine medicine;
 
     private String dosage;
+    private String symptoms;
+    private String diagnosis;
+
+    
+
+@PrePersist
+public void onCreate() {
+    this.createdAt = LocalDateTime.now();
+}
 
     // 🔥 Store JSON string in DB
     @JsonIgnore
@@ -116,4 +125,19 @@ public List<String> getTimeToTake() {
         public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
     }
+    public String getSymptoms() {
+    return symptoms;
+}
+
+public void setSymptoms(String symptoms) {
+    this.symptoms = symptoms;
+}
+
+public String getDiagnosis() {
+    return diagnosis;
+}
+
+public void setDiagnosis(String diagnosis) {
+    this.diagnosis = diagnosis;
+}
 }
