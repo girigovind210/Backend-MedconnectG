@@ -38,25 +38,28 @@ public class TwilioService {
     }
 
     public void sendWhatsAppMessageWithMedia(String toPhoneNumber, String mediaUrl, String caption) {
-        try {
-            // Normalize the phone number to ensure it starts with +91
-            if (!toPhoneNumber.startsWith("+")) {
-                toPhoneNumber = "+91" + toPhoneNumber.trim();
-            }
+    try {
+        toPhoneNumber = toPhoneNumber.trim();
 
-            logger.info("Sending WhatsApp message to: {}", toPhoneNumber);
-
-            Message message = Message.creator(
-                    new PhoneNumber("whatsapp:" + toPhoneNumber),
-                    new PhoneNumber(whatsappFrom),
-                    caption
-            ).setMediaUrl(List.of(URI.create(mediaUrl)))
-             .create();
-
-            logger.info("✅ Message sent with SID: {}", message.getSid());
-        } catch (Exception e) {
-            logger.error("❌ Error sending WhatsApp message: {}", e.getMessage());
+        if (!toPhoneNumber.startsWith("+91")) {
+            toPhoneNumber = "+91" + toPhoneNumber.replace("+", "");
         }
-    }
 
+        logger.info("📲 Sending to: {}", toPhoneNumber);
+        logger.info("📄 Media URL: {}", mediaUrl);
+
+        Message message = Message.creator(
+                new PhoneNumber("whatsapp:" + toPhoneNumber),
+                new PhoneNumber(whatsappFrom),
+                caption
+        ).setMediaUrl(List.of(URI.create(mediaUrl)))
+         .create();
+
+        logger.info("✅ Message sent SID: {}", message.getSid());
+
+    } catch (Exception e) {
+        e.printStackTrace(); // 🔥 show real error
+        throw new RuntimeException("Twilio Error: " + e.getMessage());
+    }
+}
 }
