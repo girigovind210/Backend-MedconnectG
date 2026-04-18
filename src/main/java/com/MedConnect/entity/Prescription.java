@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +37,9 @@ public class Prescription {
     @JsonIgnore
     @Column(name = "time_to_take", columnDefinition = "JSON")
     private String timeToTake;
+
+            @Column(name = "created_at")
+        private LocalDateTime createdAt;
 
     // ✅ Send as List to frontend (IMPORTANT FIX)
       @JsonProperty("timeToTake")
@@ -103,5 +107,13 @@ public List<String> getTimeToTake() {
     public String getTimeToTakeRaw() 
     {
     return timeToTake;
-}
+    }
+
+    public LocalDateTime getCreatedAt() {
+    return createdAt;
+    }
+
+        public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+    }
 }

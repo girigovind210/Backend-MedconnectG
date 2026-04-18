@@ -9,5 +9,6 @@ public interface PrescriptionRepository extends JpaRepository<Prescription, Long
 
     // ✅ CORRECT METHOD (NO QUERY NEEDED)
     List<Prescription> findByPatientId(Long patientId);
+    List<Prescription> findByPatientIdOrderByCreatedAtDesc(Long patientId);
 
 }

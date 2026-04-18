@@ -36,10 +36,14 @@ public class PrescriptionController {
     private PatientService patientService;
 
     // ✅ Add prescription
-    @PostMapping
-    public Prescription addPrescription(@RequestBody Prescription prescription) {
-        return prescriptionRepository.save(prescription);
-    }
+   @PostMapping
+public Prescription addPrescription(@RequestBody Prescription prescription) {
+
+    // ✅ ADD THIS LINE
+    prescription.setCreatedAt(java.time.LocalDateTime.now());
+
+    return prescriptionRepository.save(prescription);
+}
 
     // ✅ GET prescriptions (FIXED - no 500 error)
   @GetMapping("/{patientId}")
@@ -203,4 +207,8 @@ public ResponseEntity<?> getPrescriptionsForPatient(@PathVariable Long patientId
                     .body("Error reading file.");
         }
     }
+    @GetMapping("/history/{patientId}")
+public List<Prescription> getPatientHistory(@PathVariable Long patientId) {
+    return prescriptionRepository.findByPatientId(patientId);
+}
 }

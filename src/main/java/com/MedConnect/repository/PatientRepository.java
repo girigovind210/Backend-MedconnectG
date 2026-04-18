@@ -8,11 +8,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.MedConnect.entity.Patient;
+import com.MedConnect.entity.Prescription;
 
 @Repository
 public interface PatientRepository extends JpaRepository<Patient,Long>
 {
 	@Query("SELECT p FROM Patient p WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%')) OR str(p.id) LIKE CONCAT('%', :query, '%')")
 	List<Patient> searchByNameOrId(@Param("query") String query);
-
+	List<Prescription> findByPatientId(Long patientId);
 }
