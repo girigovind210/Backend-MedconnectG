@@ -90,8 +90,7 @@ public ResponseEntity<?> getPrescriptionsForPatient(@PathVariable Long patientId
             String pdfUrl = "https://medconnect-backend-sms3.onrender.com/api/v1/prescriptions/files/" + pdfFileName;
 
             String patientLink =
-    "https://medconnect-frontend-1.onrender.com/patient-dashboard/" + patient.getId();
-        
+    "https://medconnect-frontend-1.onrender.com/#/patient-dashboard/" + patient.getId();
 
             String caption = "Hello " + patient.getName() + ",\n\n"
         + "📄 Your prescription is attached.\n\n"
