@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -38,11 +38,9 @@ public class Patient {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-    @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<Prescription> prescription;
-
-    
+    private List<Prescription> prescription = new ArrayList<>();
     public Patient() {}
 
     // ✅ All-args constructor using List<Prescription>
@@ -144,4 +142,8 @@ public class Patient {
         this.prescription = prescription;
     }
     
+    public void removePrescription(Prescription p) {
+    prescription.remove(p);
+    p.setPatient(null);
+}
 }

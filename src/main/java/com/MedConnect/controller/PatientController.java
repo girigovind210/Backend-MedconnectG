@@ -162,23 +162,29 @@ public class PatientController {
     // DELETE
     // =========================
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePatient(@PathVariable Long id) {
-        try {
-            if (!patientRepository.existsById(id)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("message", "Patient not found"));
+public ResponseEntity<?> deletePatient(@PathVariable Long id) {
+    try {
+        Patient patient = patientRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Patient not found"));
+
+        // 🔥 remove child safely
+        if (patient.getPrescription() != null) {
+            for (Prescription p : patient.getPrescription()) {
+                p.setPatient(null);
             }
-
-            patientRepository.deleteById(id);
-
-            return ResponseEntity.ok(Map.of("message", "Patient deleted successfully"));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "Error deleting patient"));
+            patient.getPrescription().clear();
         }
+
+        patientRepository.delete(patient);
+
+        return ResponseEntity.ok("Patient deleted successfully");
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error deleting patient");
     }
+}
 
     // =========================
     // SEARCH
