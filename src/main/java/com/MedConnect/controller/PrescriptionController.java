@@ -89,7 +89,15 @@ public ResponseEntity<?> getPrescriptionsForPatient(@PathVariable Long patientId
 
             String pdfUrl = "https://medconnect-backend-sms3.onrender.com/api/v1/prescriptions/files/" + pdfFileName;
 
-            String caption = "Hello " + patient.getName() + ", please find your prescription attached.";
+            String patientLink =
+    "https://medconnect-frontend-1.onrender.com/patient-dashboard/" + patient.getId();
+        
+
+            String caption = "Hello " + patient.getName() + ",\n\n"
+        + "📄 Your prescription is attached.\n\n"
+        + "👉 View your medicines online:\n"
+        + patientLink + "\n\n"
+        + "💊 You can also check nearby medical stores from there.";
 
             twilioService.sendWhatsAppMessageWithMedia(patient.getPhoneNumber(), pdfUrl, caption);
 
@@ -99,6 +107,7 @@ public ResponseEntity<?> getPrescriptionsForPatient(@PathVariable Long patientId
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error sending prescription!");
         }
+        
     }
 
     // ✅ PDF creation (FIXED TIME BUG)
@@ -176,8 +185,8 @@ public ResponseEntity<?> getPrescriptionsForPatient(@PathVariable Long patientId
             document.add(medTable);
         }
 
-        document.add(new Paragraph("Dr. Kadam").setBold());
-        document.add(new Paragraph("(BHMS)"));
+        document.add(new Paragraph("Dr.Rajesh Sharma").setBold());
+        document.add(new Paragraph("(MBBS)"));
         document.add(new Paragraph("Phone: +91 9699-590-048"));
 
         document.close();
