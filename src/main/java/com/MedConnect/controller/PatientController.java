@@ -37,7 +37,7 @@ public class PatientController {
     // =========================
     // GET ALL
     // =========================
-    @GetMapping
+        @GetMapping(produces = "application/json")
     public List<Patient> getAllPatients() {
         return patientRepository.findAll();
     }
