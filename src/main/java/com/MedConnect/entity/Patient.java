@@ -38,7 +38,7 @@ public class Patient {
     @Column(name = "phone_number")
     private String phoneNumber;
 
-       @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Prescription> prescription;
 
