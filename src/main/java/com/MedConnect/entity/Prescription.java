@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,10 +21,10 @@ public class Prescription {
     private Long id;
 
     // 🔥 Avoid circular JSON
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "patient_id")
-    @JsonIgnore
-    private Patient patient;
+            @ManyToOne
+        @JoinColumn(name = "patient_id")
+        @JsonBackReference
+        private Patient patient;
 
     // ✅ Medicine mapping
     @ManyToOne(fetch = FetchType.EAGER)

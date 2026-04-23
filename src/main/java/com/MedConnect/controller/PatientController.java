@@ -4,14 +4,16 @@ import com.MedConnect.entity.Patient;
 import com.MedConnect.entity.Prescription;
 import com.MedConnect.repository.PatientRepository;
 import com.MedConnect.service.MedicineService;
+import com.MedConnect.service.PatientService;
 import com.MedConnect.service.TwilioService;
 import com.MedConnect.doclogin.entity.Medicine;
 import com.MedConnect.model.MedicineWithTime;
-
+import com.MedConnect.service.PatientService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
@@ -21,6 +23,9 @@ import java.util.*;
 @RequestMapping("/api/v1/patients")
 @CrossOrigin(origins = "https://medconnect-frontend-1.onrender.com")
 public class PatientController {
+
+    @Autowired
+private PatientService patientService;
 
     private final PatientRepository patientRepository;
     private final TwilioService twilioService;
@@ -46,11 +51,16 @@ public class PatientController {
     // GET BY ID
     // =========================
     @GetMapping("/{id}")
-    public ResponseEntity<Patient> getPatientById(@PathVariable Long id) {
-        return patientRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+public ResponseEntity<?> getPatientById(@PathVariable Long id) {
+
+    Patient patient = patientService.getPatientById(id);
+
+    if (patient == null) {
+        return ResponseEntity.status(404).body("Patient not found");
     }
+
+    return ResponseEntity.ok(patient);
+}
 
     // =========================
     // CREATE

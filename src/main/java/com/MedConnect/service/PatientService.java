@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.MedConnect.entity.Patient;
 import com.MedConnect.repository.PatientRepository;
+import org.springframework.http.ResponseEntity;
 
 @org.springframework.context.annotation.Profile("!demo")
 @Service
@@ -14,8 +15,9 @@ public class PatientService {
 
     // Method to fetch patient details by ID
     public Patient getPatientById(Long id) {
-        // Assuming you're using JPA or a similar ORM for fetching data
-        return patientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Patient not found with id " + id));
-    }
+    return patientRepository.findById(id)
+            .orElse(null);   // 👈 return null instead of exception
+}
+
+    
 }
